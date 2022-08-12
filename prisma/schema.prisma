@@ -16,7 +16,7 @@ model Example {
 
 model User {
     // utility
-    id         String       @unique @default(uuid())
+    id         String       @id @default(uuid())
     createdAt  DateTime     @default(now())
     updatedAt  DateTime     @updatedAt
     // data
@@ -26,11 +26,12 @@ model User {
     // relations
     LoginToken LoginToken[]
     Post       Post[]
+	trackingPantry Pantry[] @relation("UserTrackingPantry")
 }
 
 model LoginToken {
     // utility
-    id        String   @unique @default(uuid())
+    id        String   @id @default(uuid())
     createdAt DateTime @default(now())
     // data
     redirect  String   @default("/")
@@ -39,6 +40,42 @@ model LoginToken {
     user      User     @relation(fields: [userId], references: [id])
 }
 
+model Ingredient {
+	id String @id @default(uuid())
+	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
+	// data
+	name String @unique
+	category String
+	// relations
+	inPantry PantryItem[]
+}
+
+model PantryItem {
+	id String @id @default(uuid())
+	// data
+	inStock Boolean @default(true)
+	expiration DateTime?
+	// relations
+	ingredientId String
+	ingredient Ingredient @relation(fields: [ingredientId], references: [id])
+	pantryId String
+	pantry Pantry @relation(fields: [pantryId], references: [id])
+	@@unique([ingredientId, pantryId])
+}
+
+model Pantry {
+	id String @id @default(uuid())
+	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
+	// data
+	name String
+	// relations
+	inventory PantryItem[]
+	trackedBy User[] @relation("UserTrackingPantry")
+}
+
+// leftover from tutorial, possible base for comments?
 model Post {
     // utility
     id        String   @unique @default(uuid())

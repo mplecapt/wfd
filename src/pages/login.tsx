@@ -21,7 +21,7 @@ function LoginPage() {
 
 	const { mutate, data, error } = trpc.useMutation(['users.verify-login'], {
 		onSuccess: () => {
-			window.location.assign(baseUrl)
+			window.location.assign(`${baseUrl}${data?.redirect || '/my-pantries'}`)
 			// router.push(data?.redirect || '/')
 		}
 	})

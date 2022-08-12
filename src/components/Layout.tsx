@@ -60,7 +60,7 @@ function Header() {
 							<div className="hidden sm:block sm:ml-6">
 								<div className="flex space-x-4">
 									{navAddresses.map((item) => {
-										const iscurr = router.pathname.includes(item.href);
+										const iscurr = router.pathname === item.href
 										return (
 										<Link key={item.name} href={item.href}>
 											<a className={`px-3 py-2 rounded-md text-sm font-medium ${iscurr ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}

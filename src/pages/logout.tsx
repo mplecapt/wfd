@@ -1,4 +1,5 @@
 import { useRouter } from "next/router"
+import { baseUrl } from "../utils/constants"
 import { trpc } from "../utils/trpc"
 
 function LogoutPage() {
@@ -8,7 +9,8 @@ function LogoutPage() {
 
 	if (isLoading) return <p>Logging out...</p>
 
-	router.push(data?.redirect || '/')
+	// router.push(data?.redirect || '/')
+	window.location.assign(baseUrl)
 	return <p>Redirecting...</p>
 }
 
