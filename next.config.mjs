@@ -18,9 +18,4 @@ export default defineNextConfig({
   images: {
 	domains: [ 'tailwindui.com']
   },
-  experimental: {
-	images: {
-		allowFutureImage: true
-	}
-  }
 });

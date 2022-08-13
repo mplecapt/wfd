@@ -35,7 +35,7 @@ interface Context {
 	res: NextApiResponse | undefined,
 	prisma: PrismaClient<Prisma.PrismaClientOptions, never, Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined>
 	user: CtxUser | null | undefined,
-	LOGGED_IN(): void
+	LOGGED_IN(): CtxUser | null | undefined
 }
 
 export const createContext = (opts?: trpcNext.CreateNextContextOptions): Context => {
@@ -56,6 +56,7 @@ export const createContext = (opts?: trpcNext.CreateNextContextOptions): Context
 					message: 'Must be logged in to procceed'
 				})
 			}
+			return user
 		}
   };
 };

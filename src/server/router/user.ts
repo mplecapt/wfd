@@ -1,13 +1,13 @@
 import { createRouter } from "./context";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import {TRPCError} from '@trpc/server'
 import { sendLoginEmail } from "../../utils/mailer";
 import { baseUrl, SALT_IT } from '../../utils/constants';
 import { decode, encode } from "../../utils/base64";
 import { signJwt } from "../../utils/jwt";
 import { serialize } from "cookie";
-import { createUserSchema, requestOTPSchema, verifyLoginSchema, verifyOTPSchema } from "../../schemas/user.schema";
+import { createUserSchema, requestOTPSchema, updateUserSchema, verifyLoginSchema, verifyOTPSchema } from "../../schemas/user.schema";
 import bcrypt from 'bcryptjs'
+import { CatchPrismaErrors } from "../../utils/PrismaErrors";
 
 /**
  * TRCP Routing
@@ -32,19 +32,7 @@ export const userRouter = createRouter()
 				
 				return user
 			} catch (e) {
-				if (e instanceof PrismaClientKnownRequestError) {
-					if (e.code === 'P2002') {
-						throw new TRPCError({
-							code: 'CONFLICT',
-							message: 'User already exists',
-						})
-					}
-				}
-				
-				throw new TRPCError({
-					code: 'INTERNAL_SERVER_ERROR',
-					message: 'Something went wrong'
-				})
+				CatchPrismaErrors(e)
 			}
 		},
 	})
@@ -183,5 +171,25 @@ export const userRouter = createRouter()
 		resolve({ctx}) {
 			ctx.res?.setHeader('Set-Cookie', serialize('token', 'deleted', { path: '/', expires: new Date(0) }))
 			return { redirect: '/' }
+		}
+	})
+
+
+	.mutation('update-user', {
+		input: updateUserSchema,
+		async resolve({ ctx, input }) {
+			const user = ctx.LOGGED_IN()
+
+			try {
+				ctx.prisma.user.update({
+					where: { id: user?.id },
+					data: {
+						name: input.name,
+						password: input.password
+					}
+				})
+			} catch (e) {
+				CatchPrismaErrors(e)
+			}
 		}
 	})
