@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { VerifyLoginInput, verifyLoginSchema } from "../schemas/user.schema"
 import { trpc } from "../utils/trpc";
-import { FormError, Input } from '../components/Form'
+import { FormError, Input, InputGroup } from '../components/Form'
 import { Logo } from '../components/Logo'
 import Link from 'next/link'
 import { useRouter } from "next/router";
@@ -14,7 +14,7 @@ function LoginPage() {
 	const {
 		handleSubmit,
 		register,
-		formState: { errors },
+		formState: { errors, touchedFields }
 	} = useForm<VerifyLoginInput>({
 		resolver: zodResolver(verifyLoginSchema)
 	});
@@ -41,16 +41,8 @@ function LoginPage() {
 			</h2>
 	{/* Form Content */}
 			<FormError error={error} className="text-red-500 font-bold text-center" />
-			<div className="mb-4">
-				<label className="block text-gray-900 text-sm font-bold mb-2" htmlFor="email">Email</label>
-				<Input name='email' register={register} className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-900${errors.email ? ' border-red-500' : ''}`} />
-				<FormError error={errors.email} />
-			</div>
-			<div className="mb-4">
-				<label className="block text-gray-900 text-sm font-bold mb-2" htmlFor="password">Password</label>
-				<Input name='password' type='password' register={register} className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-900${errors.password ? ' border-red-500' : ''}`} />
-				<FormError error={errors.password} />
-			</div>
+			<InputGroup name='email' register={register} label='Email' state={ {error: errors.email, touched: touchedFields.email} } />
+			<InputGroup name='password' type='password' register={register} label='Password' state={{ error: errors.password, touched: touchedFields.password }} />
 			<div className="mb-2" />
 	{/* Form Footer */}
 			<div className="flex items-center justify-between">

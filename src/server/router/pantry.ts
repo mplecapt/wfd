@@ -14,7 +14,7 @@ export const pantryRouter = createRouter()
 				data: {
 					name: input.name,
 					trackedBy: { connect: { id: ctx.user?.id } }
-				}
+				},
 			})
 
 			return {
@@ -96,7 +96,7 @@ export const pantryRouter = createRouter()
 			ctx.LOGGED_IN()
 
 			try {
-				const pantry = ctx.prisma.pantry.update({
+				const pantry = await ctx.prisma.pantry.update({
 					where: { id: input.pantryId },
 					data: {
 						inventory: {
@@ -204,7 +204,7 @@ export const pantryRouter = createRouter()
 					}
 				})
 
-				const inventory = await ctx.prisma.pantryItem.findMany({
+				const inventories = await ctx.prisma.pantryItem.findMany({
 					where: { pantry: { trackedBy: { some: { id: user?.id } } } },
 					include: {
 						ingredient: true
@@ -213,7 +213,7 @@ export const pantryRouter = createRouter()
 
 				const count = await ctx.prisma.pantry.count({ where })
 
-				return { pantries, inventory, count }
+				return { pantries, inventories, count }
 			} catch (e) {
 				CatchPrismaErrors(e)
 			}

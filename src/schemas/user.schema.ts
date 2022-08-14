@@ -18,7 +18,7 @@ export type CreateUserInput = z.TypeOf<typeof createUserSchema>
 
 export const verifyLoginSchema = z.object({
 	email: z.string().email(),
-	password: z.string(),
+	password: z.string().min(1, 'Required'),
 	redirect: z.string().optional(),
 })
 export type VerifyLoginInput = z.TypeOf<typeof verifyLoginSchema>

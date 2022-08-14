@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createIngredientSchema, deleteIngredientSchema, queryIngredientInput, updateIngredientSchema } from "../../schemas/ingredient.schema";
+import { createIngredientSchema, deleteIngredientSchema, notInPantrySchema, queryIngredientInput, updateIngredientSchema } from "../../schemas/ingredient.schema";
 import { CatchPrismaErrors } from "../../utils/PrismaErrors";
 import { createRouter } from "./context";
 
@@ -10,12 +10,14 @@ export const ingredientRouter = createRouter()
 			ctx.LOGGED_IN()
 
 			try {
-				const ingr = ctx.prisma.ingredient.create({
+				const ingr = await ctx.prisma.ingredient.create({
 					data: {
 						name: input.name,
 						category: input.category,
 					}
 				})
+
+				return { ingredient: ingr }
 			} catch (e) {
 				CatchPrismaErrors(e)
 			}
@@ -61,7 +63,7 @@ export const ingredientRouter = createRouter()
 
 	.query('all-ingredients', {
 		input: queryIngredientInput,
-		resolve({ ctx, input }) {
+		async resolve({ ctx, input }) {
 			const where = input.filter ? {
 				OR: [
 					{ name: { contains: input.filter } },
@@ -69,14 +71,27 @@ export const ingredientRouter = createRouter()
 				]
 			} : {}
 
-			const ingredients = ctx.prisma.ingredient.findMany({
+			const ingredients = await ctx.prisma.ingredient.findMany({
 				where,
 				skip: input.skip,
 				take: input.take,
-				orderBy: input.orderBy
+				orderBy: input.orderBy,
+				include: {
+					inPantry: true
+				}
 			})
-			const count = ctx.prisma.ingredient.count({ where })
+			const count = await ctx.prisma.ingredient.count({ where })
 
+			return { ingredients, count }
+		}
+	})
+
+
+	.query('not-in-pantry', {
+		input: notInPantrySchema,
+		async resolve({ ctx, input }) {
+			const ingredients = await ctx.prisma.ingredient.findMany({ where: { inPantry: { none: { pantryId: input.pantryId } } } })
+			const count = await ctx.prisma.ingredient.count({ where: { inPantry: { none: { pantryId: input.pantryId } } } })
 			return { ingredients, count }
 		}
 	})

@@ -38,3 +38,8 @@ export const queryIngredientInput = z.object({
 	}).optional()
 })
 export type QueryIngredientInput = z.TypeOf<typeof queryIngredientInput>
+
+export const notInPantrySchema = z.object({
+	pantryId: z.string().uuid()
+})
+export type QueryNotInPantryInput = z.TypeOf<typeof notInPantrySchema>
