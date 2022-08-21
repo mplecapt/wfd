@@ -16,12 +16,13 @@ export type SelectPantryInput = z.TypeOf<typeof selectPantrySchema>
 
 
 export const selectInventorySchema = z.object({
-	pantryId: z.string().uuid('Invalid id'),
-	ingredientId: z.string().uuid('Invalid id'),
+	id: z.string().uuid('Invalid id'),
 })
 export type SelectInventoryInput = z.TypeOf<typeof selectInventorySchema>
 
-export const addIngredientToPantrySchema = selectInventorySchema.extend({
+export const addIngredientToPantrySchema = z.object({
+	pantryId: z.string().uuid('Invalid id'),
+	ingredientId: z.string().uuid('Invalid id'),
 	inStock: z.boolean().optional(),
 	expiration: z.date().min(new Date()).optional(),
 })

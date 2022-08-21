@@ -1,6 +1,8 @@
 import { TRPCClientErrorLike } from '@trpc/client';
-import React from 'react';
-import { FieldError, FormState, UseFormRegister } from 'react-hook-form'
+import React, { Fragment, useState } from 'react';
+import { FieldError, UseFormRegister } from 'react-hook-form'
+import { Switch, Transition } from '@headlessui/react';
+import { CheckIcon, XIcon } from '@heroicons/react/solid'
 
 export function FormError({ error, errorName, ...rest }: {
 	error?: FieldError | TRPCClientErrorLike<any> | null,
@@ -62,4 +64,24 @@ export function InputGroup ({ register, name, type, label, options, state, ...re
 			<span className='text-red-500 text-sm italic'>{state.error.message}</span>
 		)}
 	</div>
+}
+
+export function FormSwitch({ enabled, setEnabled, description, ...rest }: { 
+	enabled: boolean, 
+	setEnabled: ()=>void, 
+	description?: string
+	[x:string]: any
+}) {
+	return (
+		<Switch checked={enabled} disabled={enabled===undefined} onChange={setEnabled} className={`${enabled ? 'bg-teal-500 ' : 'bg-gray-600'}
+			relative inline-flex cursor-pointer h-[38px] w-[74px] rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out`} {...rest}
+		>
+			{description && <span className='sr-only'>{description}</span>}
+			{/* The toggle ball */}
+			<span aria-hidden="true"
+				className={`${enabled ? 'translate-x-7' : 'translate-x-0'}
+					pointer-events-none inline-block h-[34px] w-[34px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
+			/>
+		</Switch>
+	)
 }

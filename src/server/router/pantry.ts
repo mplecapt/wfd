@@ -96,20 +96,19 @@ export const pantryRouter = createRouter()
 			ctx.LOGGED_IN()
 
 			try {
-				const pantry = await ctx.prisma.pantry.update({
-					where: { id: input.pantryId },
+				const pantryItem = await ctx.prisma.pantryItem.create({
 					data: {
-						inventory: {
-							create: {
-								ingredient: { connect: { id: input.ingredientId } },
-								inStock: input.inStock,
-								expiration: input.expiration
-							}
-						}
+						ingredient: { connect: { id: input.ingredientId } },
+						pantry: { connect: { id: input.pantryId } },
+						inStock: input.inStock,
+						expiration: input.expiration,
+					},
+					include: {
+						ingredient: true
 					}
 				})
 
-				return { updatedPantry: pantry }
+				return { newPantryItem: pantryItem }
 			} catch (e) {
 				CatchPrismaErrors(e)
 			}
@@ -123,21 +122,11 @@ export const pantryRouter = createRouter()
 			ctx.LOGGED_IN()
 
 			try {
-				const pantry = ctx.prisma.pantry.update({
-					where: { id: input.pantryId },
-					data: {
-						inventory: {
-							deleteMany: [
-								{ 
-									ingredientId: input.ingredientId,
-									pantryId: input.pantryId,
-								}
-							]
-						}
-					}
+				const deleted = await ctx.prisma.pantryItem.delete({
+					where: { id: input.id }
 				})
 
-				return { updatedPantry: pantry }
+				return { removedIngredient: deleted }
 			} catch (e) {
 				CatchPrismaErrors(e)
 			}
@@ -151,11 +140,14 @@ export const pantryRouter = createRouter()
 			ctx.LOGGED_IN()
 
 			try {
-				const pantryItem = ctx.prisma.pantryItem.update({
+				const pantryItem = await ctx.prisma.pantryItem.update({
 					where: { id: input.itemId },
 					data: {
 						inStock: input.inStock,
 						expiration: input.expiration,
+					}, 
+					include: {
+						ingredient: true
 					}
 				})
 
@@ -167,16 +159,19 @@ export const pantryRouter = createRouter()
 	})
 
 
-	.query('get-pantry', {
+	.query('get-inventory', {
 		input: selectPantrySchema,
-		resolve({ ctx, input }) {
+		async resolve({ ctx, input }) {
 			
 			try {
-				const pantry = ctx.prisma.pantry.findUnique({
-					where: { id: input.pantryId },
+				const inventory = await ctx.prisma.pantryItem.findMany({
+					where: { pantryId: input.pantryId },
+					include: {
+						ingredient: true
+					}
 				})
 
-				return { pantry }
+				return { inventory }
 			} catch (e) {
 				CatchPrismaErrors(e)
 			}
@@ -188,32 +183,19 @@ export const pantryRouter = createRouter()
 		input: myPantrySchema,
 		async resolve({ ctx, input }) {
 			const user = ctx.LOGGED_IN()
-			const where = {
-				trackedBy: { some: { id: user?.id } },
-				...(input.filter && { name: { contains: input.filter } })
-			}
+			const where = { trackedBy: { some: { id: user?.id } } }
 			
 			try {
 				const pantries = await ctx.prisma.pantry.findMany({
 					where,
-					skip: input.skip,
-					take: input.take,
-					orderBy: input.orderBy,
-					include: {
-						inventory: true,
+					select: {
+						id: true,
+						name: true,
 					}
 				})
 
-				const inventories = await ctx.prisma.pantryItem.findMany({
-					where: { pantry: { trackedBy: { some: { id: user?.id } } } },
-					include: {
-						ingredient: true
-					}
-				})
-
-				const count = await ctx.prisma.pantry.count({ where })
-
-				return { pantries, inventories, count }
+				const res = { pantries }
+				return res
 			} catch (e) {
 				CatchPrismaErrors(e)
 			}
