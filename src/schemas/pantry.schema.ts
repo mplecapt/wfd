@@ -20,18 +20,21 @@ export const selectInventorySchema = z.object({
 })
 export type SelectInventoryInput = z.TypeOf<typeof selectInventorySchema>
 
+const today = new Date()
+today.setHours(0, 0, 0, 0)
+
 export const addIngredientToPantrySchema = z.object({
 	pantryId: z.string().uuid('Invalid id'),
 	ingredientId: z.string().uuid('Invalid id'),
 	inStock: z.boolean().optional(),
-	expiration: z.date().min(new Date()).optional(),
+	expiration: z.date().min(today).optional(),
 })
 export type AddIngredientInput = z.TypeOf<typeof addIngredientToPantrySchema>
 
 export const updateInventorySchema = z.object({
 	itemId: z.string().uuid('Invalid id'),
 	inStock: z.boolean().optional(),
-	expiration: z.date().min(new Date()).optional(),
+	expiration: z.date().min(today).optional().nullable(),
 })
 export type UpdateInventoryInput = z.TypeOf<typeof updateInventorySchema>
 

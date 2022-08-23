@@ -1,13 +1,12 @@
 import { PantryItem, Ingredient } from '@prisma/client'
 import { trpc } from '../utils/trpc'
-import { forwardRef, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ColumnDef, Table, Getter } from '@tanstack/react-table'
 import { AddToPantryModal } from './AddIngredient'
-import { TrashIcon, CalendarIcon } from '@heroicons/react/solid'
+import { TrashIcon } from '@heroicons/react/solid'
 import { Switch } from '@headlessui/react'
 import { StyledTable } from './Table'
 import { DateSelector } from './Dateselector'
-import { date } from 'zod'
 
 type Item = PantryItem & { ingredient: Ingredient }
 
@@ -69,6 +68,7 @@ export function PantryTable({ pantryId }: {
 			},
 			{
 				accessorKey: 'expiration',
+				enableColumnFilter: false,
 				header: () => 'Expiration',
 				cell: info => <CalendarColumn initValue={info.getValue<Date>()} index={info.row.index} id={info.column.id} table={info.table} PantryItemId={info.row.original.id} />
 			},

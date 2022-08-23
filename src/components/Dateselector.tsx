@@ -1,11 +1,11 @@
 import Datepicker, { ReactDatePickerCustomHeaderProps } from 'react-datepicker'
 import { forwardRef } from 'react'
-import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/solid'
+import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon, TrashIcon } from '@heroicons/react/solid'
 import { format } from 'date-fns'
 
 export function DateSelector({ selected, onChange, expired }: {
 	selected?: Date | undefined | null,
-	onChange?: (date: Date) => void,
+	onChange?: (date: Date | undefined | null) => void,
 	expired?: boolean
 }) {
 	const today = new Date()
@@ -14,13 +14,16 @@ export function DateSelector({ selected, onChange, expired }: {
 	return (
 			<Datepicker
 				selected={selected}
-				onChange={date => date !== null && onChange && onChange(date)}
+				onChange={date => onChange && onChange(date)}
 				minDate={today}
 				nextMonthButtonLabel='>'
 				previousMonthButtonLabel='<'
 				popperClassName='react-datepicker-left'
 				customInput={<ButtonInput expired={expired} />}
-				renderCustomHeader={CalendarHeader}
+				isClearable
+				placeholderText='--/--/----'
+				withPortal
+				renderCustomHeader={(props) => CalendarHeader(props, onChange)}
 				dayClassName={(date) => {
 					date.setHours(0, 0, 0, 0)
 					return `${date.getTime() === today.getTime() && 'border-2 border-blue-300'} hover:bg-green-300 hover:text-gray-600 cursor-pointer`}
@@ -29,11 +32,15 @@ export function DateSelector({ selected, onChange, expired }: {
 	)
 }
 
-function CalendarHeader({ date, decreaseMonth, increaseMonth, prevMonthButtonDisabled, nextMonthButtonDisabled }: ReactDatePickerCustomHeaderProps) {
+function CalendarHeader( props: ReactDatePickerCustomHeaderProps, onChange?: (date: Date | undefined | null)=>void ) {
+	const { date, decreaseMonth, increaseMonth, prevMonthButtonDisabled, nextMonthButtonDisabled } = props;
 	return (
 		<div className='flex items-center justify-between px-2 py-2'>
 			<span className='text-lg text-gray-700'>{format(date, 'MMMM yyyy')}</span>
 			<div className='space-x-2'>
+				{onChange && <button onClick={()=>{onChange(null)}} type='button'
+					className=' hover:text-red-500 inline-flex p-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-blue-500'
+				><TrashIcon className='w-5 h-5' /></button>}
 				<button onClick={decreaseMonth} disabled={prevMonthButtonDisabled} type='button'
 					className={`${prevMonthButtonDisabled && 'cursor-not-allowed opacity-50'} inline-flex p-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-blue-500`}
 				><ChevronLeftIcon className='w-5 h-5 text-gray-600' /></button>
@@ -53,7 +60,7 @@ const ButtonInput = forwardRef<HTMLButtonElement, { value?: any, onClick?: any, 
 				type="button"
 				className={`inline-flex justify-start w-full px-3 py-2 text-sm font-normal hover:bg-blue-100 hover:text-gray-500 text-white rounded-md ${expired && 'bg-red-300'}`}
 		>
-			<CalendarIcon className='h-5 w-auto mr-2'/>
+			<CalendarIcon className='h-5 w-auto mr-2 sm:inline-block hidden'/>
 			<span>{value || '--/--/----'}{expired && ' !!'}</span>
 		</button>
 	)

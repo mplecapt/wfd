@@ -105,7 +105,7 @@ export function StyledTable<T>({ initialData, columns, getRowId }: {
 														<input type='text' value={(header.column.getFilterValue() ?? '') as string}
 															onChange={e => header.column.setFilterValue(e.target.value)}
 															placeholder='Search...'
-															className="text-gray-700 rounded w-3/4 border shadow font-normal px-1 sm:inline-block hidden"
+															className="text-gray-700 rounded w-5/6 border shadow font-normal px-1 sm:inline-block hidden"
 														/>
 												</>) : null}
 											</div>
@@ -148,7 +148,7 @@ export function StyledTable<T>({ initialData, columns, getRowId }: {
 					)}
 				</tbody>
 			</table>
-			{virtualRows.length === 0 && <p className="p-2">Nothing found</p>}
+			{virtualRows.length === 0 && <p className="p-2">No items found...</p>}
 			{/* <div className="h-2" />
 			<PageControl table={table} /> */}
 	</>

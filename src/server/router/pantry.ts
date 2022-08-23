@@ -193,8 +193,9 @@ export const pantryRouter = createRouter()
 						name: true,
 					}
 				})
+				const count = await ctx.prisma.pantry.count({ where })
 
-				const res = { pantries }
+				const res = { pantries, count }
 				return res
 			} catch (e) {
 				CatchPrismaErrors(e)

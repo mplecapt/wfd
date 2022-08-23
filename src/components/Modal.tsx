@@ -6,7 +6,7 @@ function Modal({ isOpen, setOpen, children, title, closeButton }: {
 	isOpen: boolean,
 	setOpen: (val: boolean) => void,
 	children: React.ReactNode,
-	title?: string,
+	title?: React.ReactNode,
 	closeButton?: boolean,
 }) {
 	return (
